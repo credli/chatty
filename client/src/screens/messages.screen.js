@@ -85,7 +85,6 @@ class Messages extends Component {
 
     this.state = {
       usernameColors,
-      refreshing: false,
     };
 
     this.renderItem = this.renderItem.bind(this);
@@ -111,7 +110,16 @@ class Messages extends Component {
   }
 
   onEndReached() {
-    console.log('TODO: onEndReached');
+    if (!this.state.loadingMoreEntries) {
+      this.setState({
+        loadingMoreEntries: true,
+      });
+      this.props.loadMoreEntries().then(() => {
+        this.setState({
+          loadingMoreEntries: false,
+        });
+      });
+    }
   }
 
   send(text) {
@@ -184,6 +192,7 @@ Messages.propTypes = {
     users: PropTypes.array,
   }),
   loading: PropTypes.bool,
+  loadMoreEntries: PropTypes.func,
 };
 
 const ITEMS_PER_PAGE = 10;
