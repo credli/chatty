@@ -10,8 +10,17 @@ const GROUP_FRAGMENT = gql`
       id
       username
     }
-    messages(limit: $limit, offset: $offset) {
-      ... MessageFragment
+    messages(first: $first, after: $after, last: $last, before: $before) {
+      edges {
+        cursor
+        node {
+          ... MessageFragment
+        }
+      }
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+      }
     }
   }
   ${MESSAGE_FRAGMENT}
