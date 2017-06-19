@@ -150,7 +150,7 @@ const mapStateToProps = ({ auth, nav }) => ({
 const userQuery = graphql(USER_QUERY, {
   skip: ownProps => !ownProps.auth || !ownProps.auth.jwt,
   options: ownProps => ({ variables: { id: ownProps.auth.id } }),
-  props: ({ data: { loading, user, refetch, subscribeToMore } }) => ({
+  props: ({ data: { loading, user, refetch, subscribeToMore }, ownProps: { nav } }) => ({
     loading,
     user,
     refetch,
@@ -164,11 +164,18 @@ const userQuery = graphql(USER_QUERY, {
 
           const groupIndex = map(previousGroups, 'id').indexOf(newMessage.to.id);
 
+          const { index, routes } = nav;
+          let unreadCount = previousGroups[groupIndex].unreadCount;
+          if (routes[index].routeName !== 'Messages' || routes[index].params.groupId !== groupIndex) {
+            unreadCount += 1;
+          }
+
           return update(previousResult, {
             user: {
               groups: {
                 [groupIndex]: {
                   messages: { $set: [newMessage] },
+                  unreadCount: { $set: unreadCount },
                 },
               },
             },
