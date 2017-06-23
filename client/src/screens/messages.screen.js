@@ -73,7 +73,7 @@ class Messages extends Component {
           <View style={styles.title}>
             <Image
               style={styles.titleImage}
-              source={{ uri: 'https://facebook.github.io/react/img/logo_og.png' }}
+              source={{ uri: state.params.icon || 'https://facebook.github.io/react/img/logo_og.png' }}
             />
             <Text>{state.params.title}</Text>
           </View>
@@ -104,6 +104,11 @@ class Messages extends Component {
     const usernameColors = {};
     // check for new messages
     if (nextProps.group) {
+      if (!this.props.group &&
+        (this.props.navigation.state.params.icon !== nextProps.group.icon)) {
+        this.refreshNavigation(nextProps);
+      }
+
       if (nextProps.group.messages && nextProps.group.messages.length && nextProps.group.messages[0].id >= 0 &&
         (!nextProps.group.lastRead || nextProps.group.lastRead.id !== nextProps.group.messages[0].id)) {
         const { group } = nextProps;
@@ -176,6 +181,13 @@ class Messages extends Component {
 
   keyExtractor = item => item.id;
 
+  refreshNavigation(props) {
+    const { navigation, group } = props;
+    navigation.setParams({
+      icon: group.icon,
+    });
+  }
+
   renderItem = ({ item: message }) => (
     <Message
       color={this.state.usernameColors[message.from.username]}
@@ -230,10 +242,12 @@ Messages.propTypes = {
     state: PropTypes.shape({
       params: PropTypes.shape({
         groupId: PropTypes.number,
+        icon: PropTypes.string,
       }),
     }),
   }),
   group: PropTypes.shape({
+    icon: PropTypes.string,
     lastRead: PropTypes.shape({
       id: PropTypes.number,
     }),
